@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SwimCloud Points</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+      }
+      .content {
+        width: 80%;
+        max-width: 900px;
+      }
+      .ad-container {
+        width: 20%;
+        max-width: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .ad-container ins {
+        display: block;
+        width: 100%;
+      }
+      h1 {
+        color: #0056b3;
+        margin-bottom: 20px;
+      }
+      .disclaimer {
+        background: #ffcc00;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-top: 200px;
+        margin-bottom: 20px;
+        width: 80%;
+        max-width: 900px;
+        text-align: center;
+      }
+      form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        width: 80%;
+        max-width: 900px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      input[type="text"] {
+        width: 95%;
+        padding: 8px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        background: #0056b3;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #004494;
+      }
+      #graph {
+        width: 80%;
+        max-width: 900px;
+        height: 400px;
+        background: #fff;
+        padding: 20px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SwimCloud Points Prediction Model</h1>
+    <div class="container">
+      <div class="ad-container">
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6185838911408177"
+          crossorigin="anonymous"
+        ></script>
+        <!-- Swimcloud site -->
+        <ins
+          class="adsbygoogle"
+          style="display: block"
+          data-ad-client="ca-pub-6185838911408177"
+          data-ad-slot="5831706056"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+      <div class="content">
+        <div class="disclaimer">
+          <p>
+            <strong>Disclaimer:</strong> This application is intended for
+            growing swimmers seeking motivation. Given the nature of the sport,
+            the model may predict a significant performance decline within the
+            next two years for swimmers who have been performing well for an
+            extended period. This tool aims to provide
+            with target data points to aim for over the next two years.
+          </p>
+        </div>
+        <form id="urlForm">
+          <label for="profileUrl">Enter SwimCloud Profile URL:</label>
+          <input type="text" id="profileUrl" name="profileUrl" required />
+          <div class="error" id="error"></div>
+          <button type="submit">Submit</button>
+        </form>
+        <div id="graph"></div>
+      </div>
+      <div class="ad-container">
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6185838911408177"
+          crossorigin="anonymous"
+        ></script>
+        <!-- swim cloud site 2 -->
+        <ins
+          class="adsbygoogle"
+          style="display: block"
+          data-ad-client="ca-pub-6185838911408177"
+          data-ad-slot="6438210712"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("urlForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          document.getElementById("error").textContent = ""; // Clear previous errors
+          const profileUrl = document.getElementById("profileUrl").value;
+          const response = await fetch("/get-scores", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ profileUrl }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            const plotResponse = await fetch("/process-data", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+            if (plotResponse.ok) {
+              const graphJSON = await plotResponse.json();
+              const graphData = JSON.parse(graphJSON);
+              Plotly.newPlot("graph", graphData.data, graphData.layout);
+            } else {
+              const errorData = await plotResponse.json();
+              document.getElementById("error").textContent = errorData.error;
+            }
+          } else {
+            const errorData = await response.json();
+            document.getElementById("error").textContent = errorData.error;
+          }
+        });
+    </script>
+  </body>
+</html>
