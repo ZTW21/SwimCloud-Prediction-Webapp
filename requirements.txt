@@ -48,6 +48,7 @@ tqdm==4.66.4
 troposphere==4.8.0
 tzdata==2024.1
 urllib3==1.26.19
+vercel==0.2.1
 wcwidth==0.1.9
 Werkzeug==3.0.3
 wheel==0.43.0
